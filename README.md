@@ -61,7 +61,6 @@ npm run dev
    | Key | Value |
    |-----|-------|
    | `GEMINI_API_KEY` | your Google AI API key |
-   | `NODE_ENV` | `production` |
    | `DRAW_TIME` | `60` |
    | `MAX_ROUNDS` | `7` |
    | `STARTING_LIVES` | `3` |
