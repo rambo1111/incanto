@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>⚡ Incanto — Draw. Cast. Destroy.</title>
+  <link rel="stylesheet" href="styles/theme.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE: LOBBY
+══════════════════════════════════════════════════════════ -->
+<div id="page-lobby">
+
+  <!-- Marquee stripe -->
+  <div class="stripe" aria-hidden="true">
+    <span class="stripe-inner">
+      ✨ INCANTO &nbsp;&nbsp;✦&nbsp;&nbsp; DRAW YOUR SPELL &nbsp;&nbsp;✦&nbsp;&nbsp; NAME IT &nbsp;&nbsp;✦&nbsp;&nbsp; LET THE ORACLE JUDGE &nbsp;&nbsp;✦&nbsp;&nbsp; 3 LIVES · 7 ROUNDS &nbsp;&nbsp;✦&nbsp;&nbsp;
+      ✨ INCANTO &nbsp;&nbsp;✦&nbsp;&nbsp; DRAW YOUR SPELL &nbsp;&nbsp;✦&nbsp;&nbsp; NAME IT &nbsp;&nbsp;✦&nbsp;&nbsp; LET THE ORACLE JUDGE &nbsp;&nbsp;✦&nbsp;&nbsp; 3 LIVES · 7 ROUNDS &nbsp;&nbsp;✦&nbsp;&nbsp;
+    </span>
+  </div>
+
+  <div class="lobby-body">
+
+    <!-- Hero -->
+    <div class="lobby-hero">
+      <div class="lobby-badge">1V1 SPELL DRAWING BATTLE</div>
+      <h1 class="lobby-title">INCANTO</h1>
+      <div class="lobby-tagline">DRAW · NAME · DESTROY · 7 ROUNDS · 3 LIVES</div>
+    </div>
+
+    <div class="lobby-content">
+
+      <!-- Username card -->
+      <div class="nb-card lobby-card">
+        <label class="lobby-label" for="username-input">YOUR WIZARD NAME</label>
+        <input
+          id="username-input"
+          class="nb-input"
+          placeholder="ENTER YOUR NAME"
+          maxlength="14"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- Action grid -->
+      <div class="lobby-grid">
+
+        <!-- Create -->
+        <div class="nb-card nb-card-yellow lobby-card" style="grid-column:1/-1;">
+          <div class="lobby-card-title">⚔️ CREATE ROOM</div>
+          <button id="btn-create-room" class="nb-btn nb-btn-black nb-btn-full">
+            CREATE NEW ROOM
+          </button>
+        </div>
+
+        <!-- Join -->
+        <div class="nb-card lobby-card">
+          <div class="lobby-card-title">🔑 JOIN ROOM</div>
+          <input
+            id="room-code-input"
+            class="nb-input lobby-code-input"
+            placeholder="CODE"
+            maxlength="8"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+          <button id="btn-join-room" class="nb-btn nb-btn-violet nb-btn-full">JOIN</button>
+        </div>
+
+        <!-- Random -->
+        <div class="nb-card nb-card-black lobby-card">
+          <div class="lobby-card-title" style="color:var(--yellow-300);">🎲 RANDOM</div>
+          <p class="lobby-card-desc" style="color:#ccc;">Match with a stranger</p>
+          <button id="btn-random-room" class="nb-btn nb-btn-yellow nb-btn-full">FIND MATCH</button>
+        </div>
+
+      </div>
+
+      <!-- How to play -->
+      <div class="lobby-how">
+        <span>🖌️ Draw 60s</span>
+        <span class="lobby-how-div">✦</span>
+        <span>✏️ Name it</span>
+        <span class="lobby-how-div">✦</span>
+        <span>🤖 AI judges</span>
+        <span class="lobby-how-div">✦</span>
+        <span>💥 3 lives</span>
+        <span class="lobby-how-div">✦</span>
+        <span>🏆 7 rounds</span>
+      </div>
+
+    </div><!-- /lobby-content -->
+
+    <!-- Waiting banner -->
+    <div id="waiting-banner" class="lobby-waiting hidden" role="status" aria-live="polite">
+      <div class="lobby-waiting-title">⏳ WAITING FOR OPPONENT</div>
+      <div class="lobby-waiting-sub">Share this code with your friend:</div>
+      <div id="waiting-code" class="lobby-waiting-code">------</div>
+      <button id="btn-copy-code" class="nb-btn nb-btn-yellow">📋 COPY CODE</button>
+    </div>
+
+  </div><!-- /lobby-body -->
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE: GAME
+══════════════════════════════════════════════════════════ -->
+<div id="page-game" class="hidden"></div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE: RESULT
+══════════════════════════════════════════════════════════ -->
+<div id="page-result" class="hidden"></div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE: GAME OVER
+══════════════════════════════════════════════════════════ -->
+<div id="page-gameover" class="hidden"></div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
