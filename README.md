@@ -24,7 +24,7 @@
 npm install
 
 # 2. Copy and fill in the env file
-cp .env.example .env
+cp .env
 # → Add your GEMINI_API_KEY
 
 # 3. Run in development (auto-restart)
@@ -109,7 +109,7 @@ incanto/
 │       ├── lives.js             # Heart display
 │       └── toast.js             # Notification banners
 │
-├── .env.example
+├── .env
 ├── .gitignore
 ├── package.json
 └── README.md
