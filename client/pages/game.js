@@ -17,9 +17,9 @@ export function initGame(onGameOver) {
   let roomCode          = '';
   let countdownInterval = null;
   let autocastDone      = false;
-  let gameActive        = false; // guard — prevents stale socket events acting on torn-down UI
+  let gameActive        = false;
 
-  // ── START A ROUND ───────────────────────────────────────────────
+  // ── START A ROUND ────────────────────────────────────────────────
   function startGame(data) {
     roomCode = data.roomCode || roomCode;
     gameActive = true;
@@ -35,7 +35,7 @@ export function initGame(onGameOver) {
     renderGame(data);
   }
 
-  // ── RENDER GAME ARENA ───────────────────────────────────────────
+  // ── RENDER GAME ARENA ────────────────────────────────────────────
   function renderGame(data) {
     const players = data.players || [];
     const me   = players.find(p => p.isYou)  || { username: 'YOU',      lives: 3, isYou: true  };
@@ -44,7 +44,6 @@ export function initGame(onGameOver) {
     gameEl.innerHTML = `
       <div class="game-layout">
 
-        <!-- HUD -->
         <div class="game-hud">
           <div class="hud-player">
             <div class="hud-you-badge">YOU</div>
@@ -54,7 +53,7 @@ export function initGame(onGameOver) {
 
           <div class="hud-center">
             <div id="timer-container"></div>
-            <div class="round-label">ROUND ${data.round}/${data.maxRounds}</div>
+            <div class="round-label">Round ${data.round} / ${data.maxRounds}</div>
           </div>
 
           <div class="hud-player hud-player-right">
@@ -64,31 +63,28 @@ export function initGame(onGameOver) {
           </div>
         </div>
 
-        <!-- Canvas -->
         <div class="game-canvas-area">
           <div class="canvas-container" id="canvas-wrapper"></div>
         </div>
 
-        <!-- Bottom bar -->
         <div class="game-bottom">
           <input
             id="spell-name-input"
             class="nb-input spell-input"
-            placeholder="✨ Name your spell..."
+            placeholder="✨ Name your spell…"
             maxlength="48"
             autocomplete="off"
             spellcheck="false"
           />
-          <button id="btn-submit-spell" class="nb-btn nb-btn-red nb-btn-lg cast-btn">
-            ⚡ CAST
+          <button id="btn-submit-spell" class="nb-btn nb-btn-lime nb-btn-lg cast-btn">
+            ⚡ Cast
           </button>
         </div>
 
-        <!-- Judging overlay -->
         <div id="judging-overlay" class="judging-overlay hidden" aria-live="assertive">
           <div class="judging-inner">
             <div class="judging-icon">⚗️</div>
-            <div class="judging-title">THE ORACLE DECIDES…</div>
+            <div class="judging-title">The Oracle Decides…</div>
             <div class="judging-dots"><span>●</span><span>●</span><span>●</span></div>
           </div>
         </div>
@@ -121,7 +117,7 @@ export function initGame(onGameOver) {
     });
   }
 
-  // ── SUBMIT SPELL ─────────────────────────────────────────────────
+  // ── SUBMIT SPELL ──────────────────────────────────────────────────
   function doSubmit(spellName) {
     if (submitted) return;
     submitted    = true;
@@ -132,8 +128,8 @@ export function initGame(onGameOver) {
 
     const btn = document.getElementById('btn-submit-spell');
     if (btn) {
-      btn.textContent = '✓ CAST!';
-      btn.className   = 'nb-btn nb-btn-lime nb-btn-lg cast-btn';
+      btn.textContent = '✓ Cast!';
+      btn.className   = 'nb-btn nb-btn-cyan nb-btn-lg cast-btn';
       btn.disabled    = true;
     }
 
@@ -141,7 +137,7 @@ export function initGame(onGameOver) {
     socket.emit('submit_spell', { roomCode, imageData, spellName });
   }
 
-  // ── LIVES ─────────────────────────────────────────────────────────
+  // ── LIVES ──────────────────────────────────────────────────────────
   function renderLives(id, count) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -151,7 +147,7 @@ export function initGame(onGameOver) {
     ).join('');
   }
 
-  // ── COUNTDOWN ─────────────────────────────────────────────────────
+  // ── COUNTDOWN ──────────────────────────────────────────────────────
   function startCountdown(seconds, onDone) {
     clearCountdown();
     let remaining = seconds;
@@ -178,7 +174,7 @@ export function initGame(onGameOver) {
     }
   }
 
-  // ── ROUND RESULT ──────────────────────────────────────────────────
+  // ── ROUND RESULT ───────────────────────────────────────────────────
   function showRoundResult(data) {
     if (!gameActive) return;
 
@@ -189,15 +185,37 @@ export function initGame(onGameOver) {
     const me   = players.find(p => p.isYou)  || players[0];
     const them = players.find(p => !p.isYou) || players[1];
 
+    // Palette-aligned outcome colours (no black backgrounds)
+    const CHARCOAL = '#1a1a1a';
     const outcomeMap = {
-      p1_loses:         { label: `${esc(data.spells?.[0]?.username || 'P1')} LOSES A LIFE!`, bg: 'var(--red-200)',    fg: '#0d0d0d', icon: '💀' },
-      p2_loses:         { label: `${esc(data.spells?.[1]?.username || 'P2')} LOSES A LIFE!`, bg: 'var(--lime-200)',   fg: '#0d0d0d', icon: '🏆' },
-      both_lose:        { label: 'BOTH LOSE A LIFE!',              bg: 'var(--orange-200)', fg: '#0d0d0d', icon: '💥' },
-      none_lose:        { label: 'STALEMATE — NO LIVES LOST!',     bg: 'var(--cyan-200)',   fg: '#0d0d0d', icon: '🛡️' },
-      p1_inappropriate: { label: `${esc(data.spells?.[0]?.username || 'P1')} — FOUL SPELL!`, bg: 'var(--pink-200)',   fg: '#0d0d0d', icon: '🚫' },
-      p2_inappropriate: { label: `${esc(data.spells?.[1]?.username || 'P2')} — FOUL SPELL!`, bg: 'var(--pink-200)',   fg: '#0d0d0d', icon: '🚫' },
+      p1_loses: {
+        label: `${esc(data.spells?.[0]?.username || 'P1')} Loses a Life`,
+        bg: 'rgb(255,160,122)', fg: CHARCOAL, icon: '💀'
+      },
+      p2_loses: {
+        label: `${esc(data.spells?.[1]?.username || 'P2')} Loses a Life`,
+        bg: '#b8ff9f', fg: CHARCOAL, icon: '🏆'
+      },
+      both_lose: {
+        label: 'Both Lose a Life!',
+        bg: '#ffc29f', fg: CHARCOAL, icon: '💥'
+      },
+      none_lose: {
+        label: 'Stalemate — No Lives Lost',
+        bg: '#a6faff', fg: CHARCOAL, icon: '🛡️'
+      },
+      p1_inappropriate: {
+        label: `${esc(data.spells?.[0]?.username || 'P1')} — Foul Spell!`,
+        bg: '#ffa6f6', fg: CHARCOAL, icon: '🚫'
+      },
+      p2_inappropriate: {
+        label: `${esc(data.spells?.[1]?.username || 'P2')} — Foul Spell!`,
+        bg: '#ffa6f6', fg: CHARCOAL, icon: '🚫'
+      },
     };
-    const oc = outcomeMap[data.outcome] || { label: esc(String(data.outcome)), bg: 'var(--black)', fg: '#fff', icon: '❓' };
+    const oc = outcomeMap[data.outcome] || {
+      label: esc(String(data.outcome)), bg: '#a8a6ff', fg: CHARCOAL, icon: '❓'
+    };
 
     const spellsHtml = (data.spells || []).map((s, i) => `
       <div class="spell-reveal-card${s.isYou ? ' spell-reveal-yours' : ''}">
@@ -236,9 +254,9 @@ export function initGame(onGameOver) {
         <div class="result-footer">
           <div class="result-lives-row">${livesHtml}</div>
           <div class="result-countdown-bar">
-            <span>NEXT ROUND IN</span>
+            <span>Next round in</span>
             <span id="next-round-countdown" class="countdown-number">${data.nextRoundIn || 5}</span>
-            <span>SECONDS</span>
+            <span>seconds</span>
           </div>
         </div>
 
@@ -251,13 +269,12 @@ export function initGame(onGameOver) {
     startCountdown(data.nextRoundIn || 5);
   }
 
-  // ── SOCKET EVENTS ─────────────────────────────────────────────────
+  // ── SOCKET EVENTS ──────────────────────────────────────────────────
 
   socket.on('timer_tick', ({ remaining }) => {
     if (!gameActive) return;
     timer?.update(remaining);
 
-    // Auto-cast at 3 seconds remaining
     if (remaining === 3 && !autocastDone) {
       autocastDone = true;
       const spellInput = document.getElementById('spell-name-input');

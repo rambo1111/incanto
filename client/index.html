@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>⚡ Incanto — Draw. Cast. Destroy.</title>
+  <title>Incanto — Draw. Cast. Destroy.</title>
   <link rel="stylesheet" href="styles/theme.css"/>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>"/>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════
      PAGE: LOBBY
-══════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════════════════ -->
 <div id="page-lobby">
 
   <!-- Marquee stripe -->
   <div class="stripe" aria-hidden="true">
     <span class="stripe-inner">
-      ✨ INCANTO &nbsp;&nbsp;✦&nbsp;&nbsp; DRAW YOUR SPELL &nbsp;&nbsp;✦&nbsp;&nbsp; NAME IT &nbsp;&nbsp;✦&nbsp;&nbsp; LET THE ORACLE JUDGE &nbsp;&nbsp;✦&nbsp;&nbsp; 3 LIVES · 7 ROUNDS &nbsp;&nbsp;✦&nbsp;&nbsp;
-      ✨ INCANTO &nbsp;&nbsp;✦&nbsp;&nbsp; DRAW YOUR SPELL &nbsp;&nbsp;✦&nbsp;&nbsp; NAME IT &nbsp;&nbsp;✦&nbsp;&nbsp; LET THE ORACLE JUDGE &nbsp;&nbsp;✦&nbsp;&nbsp; 3 LIVES · 7 ROUNDS &nbsp;&nbsp;✦&nbsp;&nbsp;
+      ✨ Incanto &nbsp;&nbsp;✦&nbsp;&nbsp; Draw your spell &nbsp;&nbsp;✦&nbsp;&nbsp; Name it &nbsp;&nbsp;✦&nbsp;&nbsp; Let the Oracle judge &nbsp;&nbsp;✦&nbsp;&nbsp; 3 Lives · 7 Rounds &nbsp;&nbsp;✦&nbsp;&nbsp;
+      ✨ Incanto &nbsp;&nbsp;✦&nbsp;&nbsp; Draw your spell &nbsp;&nbsp;✦&nbsp;&nbsp; Name it &nbsp;&nbsp;✦&nbsp;&nbsp; Let the Oracle judge &nbsp;&nbsp;✦&nbsp;&nbsp; 3 Lives · 7 Rounds &nbsp;&nbsp;✦&nbsp;&nbsp;
     </span>
   </div>
 
@@ -26,20 +26,20 @@
 
     <!-- Hero -->
     <div class="lobby-hero">
-      <div class="lobby-badge">1V1 SPELL DRAWING BATTLE</div>
+      <div class="lobby-badge">1v1 Spell Drawing Battle</div>
       <h1 class="lobby-title">INCANTO</h1>
-      <div class="lobby-tagline">DRAW · NAME · DESTROY · 7 ROUNDS · 3 LIVES</div>
+      <div class="lobby-tagline">Draw · Name · Destroy · 7 Rounds · 3 Lives</div>
     </div>
 
     <div class="lobby-content">
 
-      <!-- Username card -->
+      <!-- Username -->
       <div class="nb-card lobby-card">
-        <label class="lobby-label" for="username-input">YOUR WIZARD NAME</label>
+        <label class="lobby-label" for="username-input">Your Wizard Name</label>
         <input
           id="username-input"
           class="nb-input"
-          placeholder="ENTER YOUR NAME"
+          placeholder="Enter your name"
           maxlength="14"
           autocomplete="off"
           autocorrect="off"
@@ -53,33 +53,33 @@
 
         <!-- Create -->
         <div class="nb-card nb-card-yellow lobby-card" style="grid-column:1/-1;">
-          <div class="lobby-card-title">⚔️ CREATE ROOM</div>
+          <div class="lobby-card-title">⚔️ Create Room</div>
           <button id="btn-create-room" class="nb-btn nb-btn-black nb-btn-full">
-            CREATE NEW ROOM
+            Create New Room
           </button>
         </div>
 
         <!-- Join -->
         <div class="nb-card lobby-card">
-          <div class="lobby-card-title">🔑 JOIN ROOM</div>
+          <div class="lobby-card-title">🔑 Join Room</div>
           <input
             id="room-code-input"
             class="nb-input lobby-code-input"
-            placeholder="CODE"
+            placeholder="Code"
             maxlength="8"
             autocomplete="off"
             autocorrect="off"
             autocapitalize="characters"
             spellcheck="false"
           />
-          <button id="btn-join-room" class="nb-btn nb-btn-violet nb-btn-full">JOIN</button>
+          <button id="btn-join-room" class="nb-btn nb-btn-violet nb-btn-full">Join</button>
         </div>
 
         <!-- Random -->
-        <div class="nb-card nb-card-black lobby-card">
-          <div class="lobby-card-title" style="color:var(--yellow-300);">🎲 RANDOM</div>
-          <p class="lobby-card-desc" style="color:#ccc;">Match with a stranger</p>
-          <button id="btn-random-room" class="nb-btn nb-btn-yellow nb-btn-full">FIND MATCH</button>
+        <div class="nb-card nb-card-cyan lobby-card">
+          <div class="lobby-card-title">🎲 Random Match</div>
+          <p class="lobby-card-desc">Match with a stranger</p>
+          <button id="btn-random-room" class="nb-btn nb-btn-orange nb-btn-full">Find Match</button>
         </div>
 
       </div>
@@ -99,33 +99,33 @@
 
     </div><!-- /lobby-content -->
 
-    <!-- Waiting banner -->
+    <!-- Waiting banner (absolute overlay) -->
     <div id="waiting-banner" class="lobby-waiting hidden" role="status" aria-live="polite">
-      <div class="lobby-waiting-title">⏳ WAITING FOR OPPONENT</div>
+      <div class="lobby-waiting-title">⏳ Waiting for Opponent</div>
       <div class="lobby-waiting-sub">Share this code with your friend:</div>
       <div id="waiting-code" class="lobby-waiting-code">------</div>
-      <button id="btn-copy-code" class="nb-btn nb-btn-yellow">📋 COPY CODE</button>
+      <button id="btn-copy-code" class="nb-btn nb-btn-cyan">📋 Copy Code</button>
     </div>
 
   </div><!-- /lobby-body -->
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════
      PAGE: GAME
-══════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════════════════ -->
 <div id="page-game" class="hidden"></div>
 
 
-<!-- ══════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════
      PAGE: RESULT
-══════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════════════════ -->
 <div id="page-result" class="hidden"></div>
 
 
-<!-- ══════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════
      PAGE: GAME OVER
-══════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════════════════ -->
 <div id="page-gameover" class="hidden"></div>
 
 

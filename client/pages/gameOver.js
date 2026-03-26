@@ -1,4 +1,4 @@
-// client/pages/gameOver.js — final results screen, perspective-aware, no scroll
+// client/pages/gameOver.js — final results screen
 
 function esc(str) {
   if (typeof str !== 'string') return '';
@@ -19,36 +19,34 @@ export function showGameOver(data) {
   const me      = players.find(p => p.isYou);
   const them    = players.find(p => !p.isYou);
 
-  // Handle opponent_disconnected as a win
   const isDisconnectWin = data.outcome === 'opponent_disconnected';
-
   const isDraw = !data.winner && !isDisconnectWin;
   const iWon   = isDisconnectWin || (!isDraw && data.winner === me?.username);
-  const iLost  = !isDraw && !iWon;
 
+  // All palette colors — no pure black backgrounds
   let icon, headline, sub, heroBg, heroFg;
+  const CHARCOAL = '#1a1a1a';
 
   if (isDraw) {
     icon     = '🤝';
-    headline = 'DRAW!';
-    sub      = 'THE DUEL ENDS IN STALEMATE';
-    heroBg   = '#A6FAFF';
-    heroFg   = '#0d0d0d';
+    headline = 'Draw!';
+    sub      = 'The duel ends in stalemate';
+    heroBg   = '#a6faff';    // paleturquoise
+    heroFg   = CHARCOAL;
   } else if (iWon) {
     icon     = '🏆';
-    headline = 'YOU WIN!';
-    sub      = isDisconnectWin ? 'OPPONENT FLED THE ARENA' : 'SUPREME SPELLCASTER';
-    heroBg   = '#B8FF9F';
-    heroFg   = '#0d0d0d';
+    headline = 'You Win!';
+    sub      = isDisconnectWin ? 'Opponent fled the arena' : 'Supreme Spellcaster';
+    heroBg   = '#b8ff9f';    // palegreen
+    heroFg   = CHARCOAL;
   } else {
     icon     = '💀';
-    headline = 'YOU LOSE!';
-    sub      = (data.winner ? esc(data.winner) + ' IS THE' : 'THE') + ' SUPREME SPELLCASTER';
-    heroBg   = '#FF9F9F';
-    heroFg   = '#0d0d0d';
+    headline = 'You Lose!';
+    sub      = (data.winner ? esc(data.winner) + ' is the' : 'The') + ' Supreme Spellcaster';
+    heroBg   = 'rgb(255,160,122)';  // lightsalmon — palette-safe, not red
+    heroFg   = CHARCOAL;
   }
 
-  // Only show standings if we have two players
   const standingRows = players.map(p => {
     const hearts   = Array.from({ length: 3 }, (_, i) =>
       `<span class="heart${i >= p.lives ? ' lost' : ''}">❤️</span>`
@@ -64,7 +62,6 @@ export function showGameOver(data) {
       </div>`;
   }).join('');
 
-  // Show narrative only if it exists and game wasn't a disconnect mid-judging
   const narrativeHtml = data.narrative && !isDisconnectWin ? `
     <div class="go-narrative">${esc(data.narrative)}</div>
   ` : '';
@@ -81,16 +78,16 @@ export function showGameOver(data) {
       ${narrativeHtml}
 
       <div class="go-standings">
-        <div class="go-standings-header">⚔️ FINAL STANDINGS</div>
+        <div class="go-standings-header">⚔️ Final Standings</div>
         ${standingRows || '<div class="go-row"><span class="go-player-name">Game ended</span></div>'}
       </div>
 
       <div class="go-buttons">
-        <button id="btn-play-again" class="nb-btn nb-btn-yellow nb-btn-lg" style="flex:1;">
-          🔄 PLAY AGAIN
+        <button id="btn-play-again" class="nb-btn nb-btn-violet nb-btn-lg" style="flex:1;">
+          🔄 Play Again
         </button>
         <button id="btn-home" class="nb-btn nb-btn-black nb-btn-lg" style="flex:1;">
-          🏠 HOME
+          🏠 Home
         </button>
       </div>
 
