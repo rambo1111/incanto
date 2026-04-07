@@ -1,0 +1,245 @@
+/* ================================================================
+   ROUND RESULT — styles/result.css
+   ================================================================ */
+
+#page-result {
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--parchment);
+}
+
+/* ── RESULT LAYOUT ──────────────────────────────────────────────── */
+.result-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--parchment);
+}
+
+/* ── OUTCOME HEADER ─────────────────────────────────────────────── */
+/* Uses PaperCSS alert class semantics, extended with our tokens */
+.result-header {
+  flex-shrink: 0;
+  padding: 12px 18px 10px;
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  animation: cardSlam 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.result-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.result-title {
+  font-family: var(--font-hand);
+  font-size: clamp(1.1rem, 4vw, 1.7rem);
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.result-reason {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--ink);
+  opacity: 0.82;
+  max-width: 360px;
+}
+
+/* Outcome background variants */
+.outcome-win   { background: var(--sage-light); }
+.outcome-lose  { background: var(--muted-red-light); }
+.outcome-both  { background: var(--amber-light); }
+.outcome-stale { background: var(--violet-light); }
+.outcome-foul  { background: var(--parchment-dark); }
+
+/* ── SPELL REVEAL MIDDLE ─────────────────────────────────────────── */
+.result-middle {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-spells {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Spell card — wired-card wrapping the drawing + label */
+.spell-reveal-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: var(--parchment);
+}
+
+.spell-reveal-card.is-yours {
+  border-color: var(--violet);
+  box-shadow: 3px 3px 0 var(--violet-light);
+}
+
+.spell-reveal-top {
+  font-family: var(--font-hand);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 9px;
+  background: var(--ink);
+  color: var(--parchment);
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.you-tag {
+  background: var(--violet-light);
+  color: var(--ink);
+  font-size: 0.5rem;
+  padding: 1px 5px;
+  border: 1px solid var(--ink);
+  border-radius: 1px;
+}
+
+.spell-reveal-img {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  object-fit: contain;
+  background: #fff;
+  display: block;
+}
+
+.spell-reveal-name {
+  font-family: var(--font-hand);
+  font-size: 0.7rem;
+  padding: 5px 9px;
+  background: var(--parchment-dark);
+  border-top: 2px solid var(--ink);
+  color: var(--ink);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* VS divider between the two spell cards */
+.vs-divider {
+  font-family: var(--font-hand);
+  font-size: 0.85rem;
+  color: var(--amber-dark);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 2px;
+  /* Rotate slightly for hand-written feel */
+  transform: rotate(-4deg);
+}
+
+/* Zdog VS animation container (crossed wands) */
+.vs-anim-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* ── BATTLE NARRATIVE ────────────────────────────────────────────── */
+/* PaperCSS-inspired blockquote styling via DoodleCSS serif */
+.result-narrative {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.6;
+  text-align: center;
+  padding: 9px 14px;
+  background: var(--violet-light);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  color: var(--ink);
+  flex-shrink: 0;
+  /* Doodle-style left accent */
+  border-left: 5px solid var(--violet-dark);
+}
+
+/* ── RESULT FOOTER ──────────────────────────────────────────────── */
+.result-footer {
+  flex-shrink: 0;
+  padding: 9px 12px 12px;
+  border-top: 2px solid var(--ink);
+  background: var(--parchment-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-lives-row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-around;
+}
+
+.result-player-lives {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.result-player-name {
+  font-family: var(--font-hand);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Countdown bar using wired-progress */
+.result-countdown-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-hand);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+}
+
+.countdown-number {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--violet-dark);
+  min-width: 1.5ch;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-height: 580px) {
+  .result-narrative { display: none; }
+  .result-header   { padding: 8px 14px; }
+  .result-icon     { font-size: 1.4rem; }
+  .result-title    { font-size: 1rem; }
+}

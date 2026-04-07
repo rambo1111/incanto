@@ -1,9 +1,13 @@
-// client/pages/game.js — drawing battle arena
+// client/pages/game.js
+// Drawing battle arena — renders HUD, canvas, spell input, judging overlay,
+// and round result. Uses wired elements for interactive controls,
+// Zdog oracle for the judging animation.
 
 import { getSocket }           from './socketClient.js';
 import { createDrawingCanvas } from '../components/drawingCanvas.js';
 import { createTimer }         from '../components/timer.js';
 import { showToast }           from '../components/toast.js';
+import { initZdogOracle }      from '../components/zdogOracle.js';
 
 export function initGame(onGameOver) {
   const socket = getSocket();
@@ -13,6 +17,7 @@ export function initGame(onGameOver) {
 
   let timer             = null;
   let canvas            = null;
+  let oracleAnim        = null; // zdogOracle instance
   let submitted         = false;
   let roomCode          = '';
   let countdownInterval = null;
@@ -26,6 +31,7 @@ export function initGame(onGameOver) {
 
     clearCountdown();
     destroyCanvas();
+    stopOracle();
     timer        = null;
     submitted    = false;
     autocastDone = false;
@@ -38,15 +44,16 @@ export function initGame(onGameOver) {
   // ── RENDER GAME ARENA ────────────────────────────────────────────
   function renderGame(data) {
     const players = data.players || [];
-    const me   = players.find(p => p.isYou)  || { username: 'YOU',      lives: 3, isYou: true  };
-    const them = players.find(p => !p.isYou) || { username: 'OPPONENT', lives: 3, isYou: false };
+    const me   = players.find(p => p.isYou)  || { username: 'YOU',      lives: 3 };
+    const them = players.find(p => !p.isYou) || { username: 'OPPONENT', lives: 3 };
 
     gameEl.innerHTML = `
       <div class="game-layout">
 
+        <!-- HUD -->
         <div class="game-hud">
           <div class="hud-player">
-            <div class="hud-you-badge">YOU</div>
+            <div class="hud-badge hud-badge-you">YOU</div>
             <span class="hud-name hud-name-you">${esc(me.username)}</span>
             <div id="lives-me" class="hearts"></div>
           </div>
@@ -57,67 +64,76 @@ export function initGame(onGameOver) {
           </div>
 
           <div class="hud-player hud-player-right">
-            <div class="hud-opp-badge">OPP</div>
+            <div class="hud-badge hud-badge-opp">OPP</div>
             <span class="hud-name">${esc(them.username)}</span>
             <div id="lives-them" class="hearts"></div>
           </div>
         </div>
 
+        <!-- Canvas area (drawingCanvas.js renders into this) -->
         <div class="game-canvas-area">
           <div class="canvas-container" id="canvas-wrapper"></div>
         </div>
 
+        <!-- Bottom: spell name + cast button -->
         <div class="game-bottom">
-          <input
-            id="spell-name-input"
-            class="nb-input spell-input"
-            placeholder="✨ Name your spell…"
-            maxlength="48"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button id="btn-submit-spell" class="nb-btn nb-btn-lime nb-btn-lg cast-btn">
-            ⚡ Cast
-          </button>
+          <div class="spell-input-wrap">
+            <wired-input
+              id="spell-name-input"
+              placeholder="✨ Name your spell…"
+              maxlength="48"
+              autocomplete="off"
+              spellcheck="false"
+            ></wired-input>
+          </div>
+          <wired-button id="btn-cast-spell" class="cast-btn">⚡ Cast</wired-button>
         </div>
 
+        <!-- Judging overlay (shown when both spells submitted) -->
         <div id="judging-overlay" class="judging-overlay hidden" aria-live="assertive">
-          <div class="judging-inner">
-            <div class="judging-icon">⚗️</div>
+          <div class="judging-card sketch-card">
+            <div id="oracle-canvas-container" class="oracle-canvas-wrap"></div>
             <div class="judging-title">The Oracle Decides…</div>
-            <div class="judging-dots"><span>●</span><span>●</span><span>●</span></div>
+            <div class="judging-dots">
+              <span>●</span><span>●</span><span>●</span>
+            </div>
           </div>
         </div>
 
       </div>
     `;
 
+    // Render hearts
     renderLives('lives-me',   me.lives);
     renderLives('lives-them', them.lives);
 
+    // Init timer
     timer  = createTimer('timer-container', data.drawTime || 60);
+
+    // Init drawing canvas
     canvas = createDrawingCanvas('canvas-wrapper');
 
-    const submitBtn  = document.getElementById('btn-submit-spell');
+    // ── SUBMIT HANDLERS ──────────────────────────────────────────────
+    const castBtn   = document.getElementById('btn-cast-spell');
     const spellInput = document.getElementById('spell-name-input');
 
-    submitBtn.addEventListener('click', () => {
+    castBtn?.addEventListener('click', () => {
       if (submitted) return;
-      const name = spellInput.value.trim();
+      const name = (spellInput?.value || '').trim();
       if (!name) { showToast('Name your spell first!', 'warning'); return; }
       doSubmit(name);
     });
 
-    spellInput.addEventListener('keydown', (e) => {
+    spellInput?.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !submitted) {
-        const name = spellInput.value.trim();
+        const name = (spellInput?.value || '').trim();
         if (name) doSubmit(name);
         else showToast('Name your spell first!', 'warning');
       }
     });
   }
 
-  // ── SUBMIT SPELL ──────────────────────────────────────────────────
+  // ── SUBMIT SPELL ─────────────────────────────────────────────────
   function doSubmit(spellName) {
     if (submitted) return;
     submitted    = true;
@@ -126,28 +142,28 @@ export function initGame(onGameOver) {
     const imageData = canvas?.getImageData() ?? null;
     canvas?.disable();
 
-    const btn = document.getElementById('btn-submit-spell');
+    const btn = document.getElementById('btn-cast-spell');
     if (btn) {
       btn.textContent = '✓ Cast!';
-      btn.className   = 'nb-btn nb-btn-cyan nb-btn-lg cast-btn';
-      btn.disabled    = true;
+      btn.classList.add('submitted');
+      btn.disabled = true;
     }
 
     showToast('Spell cast! Waiting for opponent…', 'success');
     socket.emit('submit_spell', { roomCode, imageData, spellName });
   }
 
-  // ── LIVES ──────────────────────────────────────────────────────────
+  // ── LIVES ────────────────────────────────────────────────────────
   function renderLives(id, count) {
     const el = document.getElementById(id);
     if (!el) return;
     el.className = 'hearts';
     el.innerHTML = Array.from({ length: 3 }, (_, i) =>
-      `<span class="heart${i >= count ? ' lost' : ''}">❤️</span>`
+      `<span class="heart${i >= count ? ' lost' : ''}" style="transform:rotate(${(i-1)*4}deg)">❤️</span>`
     ).join('');
   }
 
-  // ── COUNTDOWN ──────────────────────────────────────────────────────
+  // ── COUNTDOWN ────────────────────────────────────────────────────
   function startCountdown(seconds, onDone) {
     clearCountdown();
     let remaining = seconds;
@@ -168,13 +184,25 @@ export function initGame(onGameOver) {
   }
 
   function destroyCanvas() {
-    if (canvas) {
-      if (typeof canvas.destroy === 'function') canvas.destroy();
-      canvas = null;
-    }
+    canvas?.destroy?.();
+    canvas = null;
   }
 
-  // ── ROUND RESULT ───────────────────────────────────────────────────
+  // ── ORACLE ANIMATION ─────────────────────────────────────────────
+  function startOracle() {
+    // Only initialise once; start/stop on show/hide
+    if (!oracleAnim) {
+      oracleAnim = initZdogOracle('oracle-canvas-container');
+    }
+    oracleAnim?.start();
+  }
+
+  function stopOracle() {
+    oracleAnim?.stop();
+    oracleAnim = null; // reset so it reinits for next judging overlay
+  }
+
+  // ── ROUND RESULT ─────────────────────────────────────────────────
   function showRoundResult(data) {
     if (!gameActive) return;
 
@@ -185,45 +213,26 @@ export function initGame(onGameOver) {
     const me   = players.find(p => p.isYou)  || players[0];
     const them = players.find(p => !p.isYou) || players[1];
 
-    // Palette-aligned outcome colours (no black backgrounds)
-    const CHARCOAL = '#1a1a1a';
-    const outcomeMap = {
-      p1_loses: {
-        label: `${esc(data.spells?.[0]?.username || 'P1')} Loses a Life`,
-        bg: 'rgb(255,160,122)', fg: CHARCOAL, icon: '💀'
-      },
-      p2_loses: {
-        label: `${esc(data.spells?.[1]?.username || 'P2')} Loses a Life`,
-        bg: '#b8ff9f', fg: CHARCOAL, icon: '🏆'
-      },
-      both_lose: {
-        label: 'Both Lose a Life!',
-        bg: '#ffc29f', fg: CHARCOAL, icon: '💥'
-      },
-      none_lose: {
-        label: 'Stalemate — No Lives Lost',
-        bg: '#a6faff', fg: CHARCOAL, icon: '🛡️'
-      },
-      p1_inappropriate: {
-        label: `${esc(data.spells?.[0]?.username || 'P1')} — Foul Spell!`,
-        bg: '#ffa6f6', fg: CHARCOAL, icon: '🚫'
-      },
-      p2_inappropriate: {
-        label: `${esc(data.spells?.[1]?.username || 'P2')} — Foul Spell!`,
-        bg: '#ffa6f6', fg: CHARCOAL, icon: '🚫'
-      },
-    };
-    const oc = outcomeMap[data.outcome] || {
-      label: esc(String(data.outcome)), bg: '#a8a6ff', fg: CHARCOAL, icon: '❓'
+    // Outcome → CSS class + icon + label
+    const OUTCOME_MAP = {
+      p1_loses:        { cls: 'outcome-lose',  icon: '💀', label: `${esc(data.spells?.[0]?.username || 'P1')} Loses a Life` },
+      p2_loses:        { cls: 'outcome-win',   icon: '🏆', label: `${esc(data.spells?.[1]?.username || 'P2')} Loses a Life` },
+      both_lose:       { cls: 'outcome-both',  icon: '💥', label: 'Both Lose a Life!' },
+      none_lose:       { cls: 'outcome-stale', icon: '🛡️', label: 'Stalemate — No Lives Lost' },
+      p1_inappropriate:{ cls: 'outcome-foul',  icon: '🚫', label: `${esc(data.spells?.[0]?.username || 'P1')} — Foul Spell!` },
+      p2_inappropriate:{ cls: 'outcome-foul',  icon: '🚫', label: `${esc(data.spells?.[1]?.username || 'P2')} — Foul Spell!` },
     };
 
+    const oc = OUTCOME_MAP[data.outcome] || { cls: 'outcome-stale', icon: '❓', label: esc(String(data.outcome)) };
+
+    // Spell reveal cards HTML
     const spellsHtml = (data.spells || []).map((s, i) => `
-      <div class="spell-reveal-card${s.isYou ? ' spell-reveal-yours' : ''}">
-        <div class="spell-reveal-name-top">
+      <div class="spell-reveal-card${s.isYou ? ' is-yours' : ''}">
+        <div class="spell-reveal-top">
           ${esc(s.username)}${s.isYou ? ' <span class="you-tag">YOU</span>' : ''}
         </div>
-        <img src="${s.imageData || ''}" class="spell-reveal-img" alt="drawing" loading="lazy"/>
-        <div class="spell-reveal-label">&ldquo;${esc(s.spellName || '')}&rdquo;</div>
+        <img src="${s.imageData || ''}" class="spell-reveal-img" alt="spell drawing" loading="lazy"/>
+        <div class="spell-reveal-name">&ldquo;${esc(s.spellName || '')}&rdquo;</div>
       </div>
       ${i === 0 && data.spells.length > 1 ? '<div class="vs-divider">VS</div>' : ''}
     `).join('');
@@ -240,15 +249,15 @@ export function initGame(onGameOver) {
     resultEl.innerHTML = `
       <div class="result-layout">
 
-        <div class="result-header" style="background:${oc.bg}; color:${oc.fg};">
-          <span class="result-icon">${oc.icon}</span>
+        <div class="result-header ${oc.cls}">
+          <div class="result-icon">${oc.icon}</div>
           <h2 class="result-title">${oc.label}</h2>
           ${data.reason ? `<p class="result-reason">${esc(data.reason)}</p>` : ''}
         </div>
 
         <div class="result-middle">
           <div class="result-spells">${spellsHtml}</div>
-          ${data.narrative ? `<div class="result-narrative">${esc(data.narrative)}</div>` : ''}
+          ${data.narrative ? `<blockquote class="result-narrative">${esc(data.narrative)}</blockquote>` : ''}
         </div>
 
         <div class="result-footer">
@@ -258,27 +267,47 @@ export function initGame(onGameOver) {
             <span id="next-round-countdown" class="countdown-number">${data.nextRoundIn || 5}</span>
             <span>seconds</span>
           </div>
+          <wired-progress
+            id="round-countdown-bar"
+            min="0"
+            max="${data.nextRoundIn || 5}"
+            value="${data.nextRoundIn || 5}"
+          ></wired-progress>
         </div>
 
       </div>
     `;
 
+    // Render hearts in result footer
     if (me)   renderLives('result-lives-me',   me.lives);
     if (them) renderLives('result-lives-them', them.lives);
 
-    startCountdown(data.nextRoundIn || 5);
+    // Countdown with wired-progress animation
+    const progressBar = document.getElementById('round-countdown-bar');
+    const total = data.nextRoundIn || 5;
+    startCountdown(total, undefined);
+
+    if (progressBar) {
+      let remaining = total;
+      const pInterval = setInterval(() => {
+        remaining--;
+        progressBar.value = remaining;
+        if (remaining <= 0) clearInterval(pInterval);
+      }, 1000);
+    }
   }
 
-  // ── SOCKET EVENTS ──────────────────────────────────────────────────
+  // ── SOCKET EVENTS ─────────────────────────────────────────────────
 
   socket.on('timer_tick', ({ remaining }) => {
     if (!gameActive) return;
     timer?.update(remaining);
 
+    // Auto-cast at 3 seconds remaining if player hasn't submitted
     if (remaining === 3 && !autocastDone) {
       autocastDone = true;
       const spellInput = document.getElementById('spell-name-input');
-      const name = spellInput?.value?.trim() || 'Chaotic Scribble';
+      const name = (spellInput?.value || '').trim() || 'Chaotic Scribble';
       showToast('⏰ Time up — auto-casting!', 'warning', 2000);
       setTimeout(() => { if (!submitted) doSubmit(name); }, 120);
     }
@@ -292,11 +321,13 @@ export function initGame(onGameOver) {
   socket.on('judging_start', () => {
     if (!gameActive) return;
     document.getElementById('judging-overlay')?.classList.remove('hidden');
+    startOracle();
   });
 
   socket.on('round_result', (data) => {
     if (!gameActive) return;
     document.getElementById('judging-overlay')?.classList.add('hidden');
+    stopOracle();
     clearCountdown();
     showRoundResult(data);
   });
@@ -304,6 +335,7 @@ export function initGame(onGameOver) {
   socket.on('game_over', (data) => {
     gameActive = false;
     document.getElementById('judging-overlay')?.classList.add('hidden');
+    stopOracle();
     clearCountdown();
     destroyCanvas();
     gameEl.classList.add('hidden');
@@ -319,9 +351,15 @@ export function initGame(onGameOver) {
   return { startGame };
 }
 
+// ── UTILITY ──────────────────────────────────────────────────────
+
+/** Escape HTML special characters */
 function esc(str) {
   if (typeof str !== 'string') return '';
   return str
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
 }

@@ -1,9 +1,9 @@
-// game/roundTimer.js — manages per-room countdown timers
+// server/game/roundTimer.js — manages per-room countdown timers
 
-const timers = new Map(); // roomCode -> { interval, remaining, onTick, onEnd }
+const timers = new Map(); // roomCode -> { interval, remaining }
 
 function startTimer(roomCode, duration, onTick, onEnd) {
-  stopTimer(roomCode); // clear any existing
+  stopTimer(roomCode); // clear any existing timer for this room
 
   let remaining = duration;
   onTick(remaining);

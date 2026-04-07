@@ -1,4 +1,4 @@
-// pages/socketClient.js — singleton socket connection
+// client/pages/socketClient.js — singleton socket connection (unchanged)
 
 let socket = null;
 

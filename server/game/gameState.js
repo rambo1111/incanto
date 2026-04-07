@@ -1,8 +1,7 @@
-// game/gameState.js — manages all room and game state in memory
+// server/game/gameState.js — manages all room and game state in memory
 
 const rooms = new Map(); // roomCode -> roomState
 
-// ── Read game config from .env (with sensible defaults) ──────────
 const MAX_ROUNDS     = parseInt(process.env.MAX_ROUNDS,     10) || 7;
 const STARTING_LIVES = parseInt(process.env.STARTING_LIVES, 10) || 3;
 const DRAW_TIME      = parseInt(process.env.DRAW_TIME,      10) || 60;
@@ -13,13 +12,13 @@ function createRoom(roomCode, hostSocketId, hostUsername) {
   const room = {
     code: roomCode,
     players: [
-      { socketId: hostSocketId, username: hostUsername, lives: STARTING_LIVES }
+      { socketId: hostSocketId, username: hostUsername, lives: STARTING_LIVES },
     ],
     state: 'waiting',
     round: 0,
     submissions: {},
     roundResults: [],
-    createdAt: Date.now()
+    createdAt: Date.now(),
   };
   rooms.set(roomCode, room);
   return room;
@@ -27,11 +26,11 @@ function createRoom(roomCode, hostSocketId, hostUsername) {
 
 function joinRoom(roomCode, socketId, username) {
   const room = rooms.get(roomCode);
-  if (!room) return { error: 'Room not found' };
-  if (room.players.length >= 2) return { error: 'Room is full' };
-  if (room.state !== 'waiting') return { error: 'Game already in progress' };
+  if (!room)                      return { error: 'Room not found' };
+  if (room.players.length >= 2)   return { error: 'Room is full' };
+  if (room.state !== 'waiting')   return { error: 'Game already in progress' };
 
-  // Deduplicate name: if host has the same name, append _2 to the joiner
+  // Deduplicate name
   const takenNames = room.players.map(p => p.username.toUpperCase());
   let finalUsername = username;
   if (takenNames.includes(username.toUpperCase())) {
@@ -42,9 +41,7 @@ function joinRoom(roomCode, socketId, username) {
   return { room };
 }
 
-function getRoom(roomCode) {
-  return rooms.get(roomCode) || null;
-}
+function getRoom(roomCode)            { return rooms.get(roomCode) || null; }
 
 function getRoomBySocketId(socketId) {
   for (const room of rooms.values()) {
@@ -71,8 +68,8 @@ function removePlayerFromRoom(socketId) {
 function startRound(roomCode) {
   const room = rooms.get(roomCode);
   if (!room) return null;
-  room.round += 1;
-  room.state = 'drawing';
+  room.round      += 1;
+  room.state       = 'drawing';
   room.submissions = {};
   return room;
 }
@@ -91,13 +88,12 @@ function applyRoundResult(roomCode, outcome) {
   const [p1, p2] = room.players;
 
   switch (outcome.type) {
-    case 'p1_loses':        p1.lives = Math.max(0, p1.lives - 1); break;
-    case 'p2_loses':        p2.lives = Math.max(0, p2.lives - 1); break;
-    case 'both_lose':       p1.lives = Math.max(0, p1.lives - 1); p2.lives = Math.max(0, p2.lives - 1); break;
-    case 'p1_inappropriate': p1.lives = Math.max(0, p1.lives - 1); break;
-    case 'p2_inappropriate': p2.lives = Math.max(0, p2.lives - 1); break;
-    case 'none_lose':
-    default: break;
+    case 'p1_loses':          p1.lives = Math.max(0, p1.lives - 1); break;
+    case 'p2_loses':          p2.lives = Math.max(0, p2.lives - 1); break;
+    case 'both_lose':         p1.lives = Math.max(0, p1.lives - 1); p2.lives = Math.max(0, p2.lives - 1); break;
+    case 'p1_inappropriate':  p1.lives = Math.max(0, p1.lives - 1); break;
+    case 'p2_inappropriate':  p2.lives = Math.max(0, p2.lives - 1); break;
+    case 'none_lose': default: break;
   }
 
   room.roundResults.push({ round: room.round, outcome });
@@ -115,8 +111,11 @@ function generateRoomCode() {
 
 function findRandomWaitingRoom(excludeSocketId) {
   for (const room of rooms.values()) {
-    if (room.state === 'waiting' && room.players.length === 1 &&
-        room.players[0].socketId !== excludeSocketId) {
+    if (
+      room.state === 'waiting' &&
+      room.players.length === 1 &&
+      room.players[0].socketId !== excludeSocketId
+    ) {
       return room;
     }
   }
@@ -130,5 +129,5 @@ module.exports = {
   removePlayerFromRoom, startRound, submitSpell,
   applyRoundResult, generateRoomCode, findRandomWaitingRoom,
   getAllRooms,
-  MAX_ROUNDS, STARTING_LIVES, DRAW_TIME
+  MAX_ROUNDS, STARTING_LIVES, DRAW_TIME,
 };

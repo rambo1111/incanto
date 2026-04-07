@@ -1,0 +1,153 @@
+/* ================================================================
+   INCANTO — BASE CSS
+   Enchanted Sketchbook theme
+   Loads after PaperCSS + DoodleCSS, overrides both where needed
+   ================================================================ */
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────────── */
+:root {
+  --parchment:      #f8f7ef;
+  --parchment-dark: #ede9d8;
+  --parchment-mid:  #f2eed8;
+  --ink:            #2c1810;
+  --ink-light:      #4a3728;
+  --ink-faint:      rgba(44, 24, 16, 0.10);
+  --ink-faint2:     rgba(44, 24, 16, 0.06);
+
+  --sage:           #7b9e87;
+  --sage-dark:      #5a7d66;
+  --sage-light:     #adc9b5;
+
+  --violet:         #8b7fa8;
+  --violet-dark:    #6a5e8a;
+  --violet-light:   #b8aed4;
+
+  --amber:          #c4873e;
+  --amber-dark:     #9e6a28;
+  --amber-light:    #e8c07a;
+
+  --muted-red:      #c05a5a;
+  --muted-red-dark: #9e3e3e;
+  --muted-red-light:#e8a0a0;
+
+  --slate-blue:     #6a9cb8;
+  --slate-dark:     #4a7898;
+
+  --font-hand:   'Short Stack', cursive;
+  --font-serif:  'Crimson Pro', Georgia, serif;
+}
+
+/* ── GLOBAL RESET ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override PaperCSS body styles completely */
+html, body {
+  height: 100%;
+  overflow: hidden !important;
+  background: var(--parchment) !important;
+  padding: 0 !important;
+  max-width: none !important;
+  font-family: var(--font-hand) !important;
+  color: var(--ink) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PAGE CONTAINERS ───────────────────────────────────────────── */
+#page-lobby,
+#page-game,
+#page-result,
+#page-gameover {
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--parchment);
+}
+
+.hidden { display: none !important; }
+
+/* ── SKETCH CARD ───────────────────────────────────────────────── */
+/* DoodleCSS-inspired hand-drawn border card */
+.sketch-card {
+  background: var(--parchment);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  /* Irregular box-shadow simulates a hand-drawn off-axis shadow */
+  box-shadow:
+    3px 3px 0 var(--ink-faint),
+    4px 5px 0 var(--ink-faint2);
+  padding: 12px 16px;
+}
+
+/* ── WIRED ELEMENTS — GLOBAL STYLING ───────────────────────────── */
+/* WiredJS inherits font from parent but we enforce our hand font */
+wired-button,
+wired-input,
+wired-card,
+wired-progress,
+wired-item {
+  font-family: var(--font-hand) !important;
+  --wired-item-color: var(--ink);
+}
+
+/* Make wired-input fill its container */
+wired-input {
+  width: 100%;
+  display: block;
+}
+
+/* Wired progress — violet fill to match theme */
+wired-progress {
+  width: 100%;
+  display: block;
+  --wired-progress-color: var(--violet);
+}
+
+/* ── HEARTS ────────────────────────────────────────────────────── */
+.hearts {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.heart {
+  font-size: 1rem;
+  display: inline-block;
+  transition: filter 0.18s, transform 0.18s;
+}
+.heart.lost {
+  filter: grayscale(1) opacity(0.22);
+  transform: scale(0.75);
+}
+
+/* ── TOAST CONTAINER ───────────────────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  max-width: 90vw;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--parchment-dark); }
+::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 0; }
+
+/* ── OVERRIDE PAPERCSS CONTAINER MAX-WIDTH ─────────────────────── */
+.paper, .container {
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+/* ── ZDOG CANVAS ────────────────────────────────────────────────── */
+.zdog-canvas {
+  display: block;
+}

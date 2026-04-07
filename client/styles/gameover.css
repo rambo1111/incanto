@@ -1,0 +1,163 @@
+/* ================================================================
+   GAME OVER — styles/gameover.css
+   ================================================================ */
+
+#page-gameover {
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--parchment);
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────── */
+.go-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px 16px 20px;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* ── HERO SECTION ───────────────────────────────────────────────── */
+.go-hero {
+  flex-shrink: 0;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  padding: 18px 20px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: cardSlam 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Zdog canvas for trophy/skull/draw renders here */
+.go-trophy-wrap {
+  width: 140px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.go-headline {
+  font-family: var(--font-hand);
+  font-size: clamp(2.4rem, 10vw, 4rem);
+  color: var(--ink);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+
+.go-sub {
+  font-family: var(--font-hand);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.6;
+}
+
+/* Outcome background variants */
+.go-win  { background: var(--sage-light); }
+.go-lose { background: var(--muted-red-light); }
+.go-draw { background: var(--violet-light); }
+
+/* ── NARRATIVE ──────────────────────────────────────────────────── */
+.go-narrative {
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.6;
+  padding: 12px 16px;
+  text-align: center;
+  background: var(--parchment-mid);
+  border: 2px solid var(--ink);
+  border-left: 5px solid var(--amber);
+  border-radius: 3px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+/* ── STANDINGS ──────────────────────────────────────────────────── */
+.go-standings {
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.go-standings-header {
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 9px 16px;
+  font-family: var(--font-hand);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.go-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px dashed var(--ink-faint); /* dashed = hand-ruled notebook line */
+  background: var(--parchment);
+  flex: 1;
+}
+
+.go-row:last-child {
+  border-bottom: none;
+}
+
+.go-player-name {
+  font-family: var(--font-hand);
+  font-size: 0.92rem;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── BUTTONS ────────────────────────────────────────────────────── */
+.go-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.go-btn {
+  flex: 1;
+  font-family: var(--font-hand) !important;
+  font-size: 0.9rem !important;
+}
+
+.go-btn-again {
+  background: var(--violet-light) !important;
+  --wired-item-color: var(--ink) !important;
+}
+
+.go-btn-home {
+  background: var(--parchment-dark) !important;
+  --wired-item-color: var(--ink) !important;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-height: 580px) {
+  .go-narrative    { display: none; }
+  .go-hero         { padding: 10px 14px 10px; }
+  .go-trophy-wrap  { height: 90px; }
+  .go-headline     { font-size: 2.2rem; }
+  .go-layout       { gap: 8px; padding: 10px 12px 12px; }
+}
+
+@media (max-width: 380px) {
+  .go-layout { padding: 10px 10px 14px; }
+}
